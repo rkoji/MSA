@@ -5,6 +5,7 @@ import com.sparta.msa_exam.product.dto.ProductResponseDto;
 import com.sparta.msa_exam.product.entity.Product;
 import com.sparta.msa_exam.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    @Cacheable(cacheNames = "product_cahce")
     public List<ProductResponseDto> getProducts() {
         List<Product> products = productRepository.findAll();
         return products.stream()
@@ -25,7 +27,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-//    @CachePut(cacheNames = "productCache",key = "args[0]")
+    @CacheEvict(cacheNames = "product_cahce",allEntries = true)
     public ProductResponseDto addProduct(ProductRequestDto dto) {
         Product product = new Product();
         product.saveProduct(dto);
@@ -39,7 +41,6 @@ public class ProductService {
         );
     }
 
-//    @Cacheable(cacheNames = "productGetCache", key = "args[0]")
     public Long getProduct(Long productId) {
         // product_id 가 상품 목록에 존재하는지 검증
         Product product = productRepository.findById(productId)

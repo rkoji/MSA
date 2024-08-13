@@ -8,6 +8,7 @@ import com.sparta.msa_exam.order.entity.OrderItem;
 import com.sparta.msa_exam.order.repository.OrderItemRepository;
 import com.sparta.msa_exam.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,6 @@ public class OrderService {
 
     // 주문 추가 API
     @Transactional
-//    @CachePut(cacheNames = "orderCache", key = "#result.id")
     public OrderResponseDto addOrder(OrderRequestDto orderRequestDto) {
         // product_id가 유효한지 검증
         List<Long> productsIds = orderRequestDto.getProducts_ids();
@@ -46,7 +46,6 @@ public class OrderService {
 
     // 주문에 상품을 추가하는 API
     @Transactional
-//    @CachePut(cacheNames = "orderCache",key = "args[0]")
     public void addProductToOrder(Long orderId, Long productId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
@@ -60,7 +59,7 @@ public class OrderService {
     }
 
     // 주문 단건 조회 API
-//    @Cacheable(cacheNames = "orderCache", key = "{args[0].orderId, args[1].products_ids}")
+    @Cacheable(cacheNames = "order_cache")
     public OrderResponseDto getOrderById(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
